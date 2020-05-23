@@ -1,77 +1,95 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <SFML/Network.hpp>
-#include <SFML/Graphics.hpp>
-
-#include "User.hpp"
+#include "Server.hpp"
 
 using namespace std;
 using namespace sf;
 
-
 int main() 
 {
-  TcpListener listener;
-  SocketSelector selector;
-  vector<User*> clients;
-
-  listener.listen(1132);
-  selector.add(listener);
+  Server *myServer = Server::Instance();
 
   while (true) 
   {
-    if (selector.wait()) 
-    {
-      if (selector.isReady(listener)) 
-      {
-        TcpSocket *socket = new TcpSocket;
-        User *pl = new User;
-        listener.accept(*socket);
-        Packet packet;
-        Uint32 id;
-        if (socket->receive(packet) == Socket::Done)
-            packet >> id;
-        pl->id = id;
-        pl->socket = socket;
-        clients.push_back(pl);
-        Packet pList;
-        pList << (Uint32)clients.size();
-        for(auto i : clients)
-          pList << i->id;
-        socket->send(pList);
-        selector.add(*socket);
-      }
-      else 
-      {
+    myServer->Work();
+  }
 
-        Packet packet;
-        for (int i = 0; i < clients.size(); i++) 
+  myServer->Stop();
+  return 0;
+}
+
+Server* Server::_instance = 0;
+Server* Server::Instance()
+{
+  if(_instance == 0)
+  {
+    _instance = new Server;
+  }
+  return _instance;
+}
+
+Server::Server()
+{
+  _listener.listen(1132);
+  _selector.add(_listener);
+}
+
+void Server::Work()
+{
+  if (_selector.wait()) 
+  {
+    if (_selector.isReady(_listener)) 
+    {
+      TcpSocket *socket = new TcpSocket;
+      User *pl = new User;
+      _listener.accept(*socket);
+      Packet packet;
+      Uint32 id;
+      if (socket->receive(packet) == Socket::Done)
+          packet >> id;
+      pl->id = id;
+      pl->socket = socket;
+      _clients.push_back(pl);
+      Packet pList;
+      pList << (Uint32)_clients.size();
+      for(auto i : _clients)
+        pList << i->id;
+      socket->send(pList);
+      _selector.add(*socket);
+    }
+    else 
+    {
+      Packet packet;
+      for (int i = 0; i < _clients.size(); i++) 
+      {
+        if (_selector.isReady(*(*_clients[i]).socket)) 
         {
-          if (selector.isReady(*(*clients[i]).socket)) 
+          if ((*_clients[i]).socket->receive(packet) == Socket::Done) 
           {
-            if ((*clients[i]).socket->receive(packet) == Socket::Done) 
-            {
-              Uint32 x, y;
-              cout << "user id = " <<  (*clients[i]).id << endl;
-              if(packet >> y >> x)
-                cout << "Pack true" << endl;
-              cout << y << " " << x << endl;
-              Packet sendPacket;
-              sendPacket << y << x;
-            }
+            Uint32 x, y;
+            cout << "user id = " <<  (*_clients[i]).id << endl;
+            if(packet >> y >> x)
+              cout << "Pack true" << endl;
+            cout << y << " " << x << endl;
+            Packet sendPacket;
+            sendPacket << y << x;
           }
         }
       }
     }
   }
+}
 
-  for(vector<User*>::iterator it = clients.begin(); it != clients.end(); it++)
+void Server::Stop()
+{
+  delete this;
+}
+
+Server::~Server()
+{
+  _instance = 0;
+  
+  for(auto it : _clients)
   {
-    delete (*it)->socket;
-    delete *it;
+    delete it->socket;
+    delete it;
   }
-
-  system("pause");
-  return 0;
 }
