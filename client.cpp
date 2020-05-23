@@ -9,12 +9,14 @@ using namespace sf;
 
 const int w = 20;
 const int h = 20;
-
-int size = 32;
+Uint32 myfig = 2;
+Uint32 opfig = 1;
+int px = 32;
 
 int grid[w][h];
 
-  bool fSend = false;
+bool fSend = false;
+
 int main() {
 
   IpAddress ip = "192.168.1.233";
@@ -24,9 +26,9 @@ int main() {
   cout << "Введите свой id: ";
   cin >> id;
 
-  socket.connect(ip, 1131);
+  socket.connect(ip, 1132);
 
-  RenderWindow Window(VideoMode(h*size, w*size, 32), "Client Test", Style::Close);
+  RenderWindow Window(VideoMode(h*px, w*px, 32), "Client Test", Style::Close);
 
   vector<RectangleShape> rects;
 
@@ -47,9 +49,6 @@ int main() {
     }
     cout << endl;
   }
-
-
-  Window.setTitle(id);
 
   Texture free;
   free.loadFromFile("free.png");
@@ -86,7 +85,7 @@ int main() {
         case Event::MouseButtonPressed:
           if(grid[Y][X] == 0)
           {
-            grid[Y][X] = 1; 
+            grid[Y][X] = myfig; 
             fSend = true;
           }
           break;
@@ -105,7 +104,7 @@ int main() {
         socket.receive(sPack);
         Uint32 x,y;
         sPack >> x >> y;
-        grid[x][y] = 2;
+        grid[x][y] = opfig;
         fSend = false;
       }
     //socket.receive(packet);
@@ -125,7 +124,7 @@ int main() {
             s.setTexture(x);
             break;
         }
-        s.setPosition(j*size,i*size);
+        s.setPosition(j*px,i*px);
         Window.draw(s);
       }
     Window.display();
