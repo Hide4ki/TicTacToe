@@ -1,3 +1,3 @@
 #pragma once
 
-enum class UserState {Online, Offline, PlayOn};
+enum class UserState {InvalidState = 0, Online, Offline, PlayOn};

@@ -12,21 +12,24 @@ using namespace sf;
 class User
 {
 public:
-  Uint32 id;
-  TcpSocket *socket;
-  UserState state; 
-  Uint32 cntWon;
-  Uint32 cntLost;
-  Uint32 cntGame;
-  Uint32 password;//TODO add md5 hash
-  string login;
-  User();
-  User(TcpSocket*);
-  User(const User&);
-  User(User&&);
-  User& operator=(const User&);
-  User& operator=(User&&);
+  User(string&, Uint32);
+  User(const User&) = delete;
+  User(User&&) = delete;
+  User& operator=(const User&) = delete;
+  User& operator=(User&&) = delete;
   virtual ~User();
-  friend ofstream &operator<<(ofstream&, User*);
+  bool CheckLogin(string&) const;
+  bool CheckPass(Uint32) const;
+private:
+  Uint32 _id;
+  TcpSocket *_socket;
+  UserState _state; 
+  Uint32 _cntWon;
+  Uint32 _cntLost;
+  Uint32 _cntGame;
+  Uint32 _password;//TODO add md5 hash
+  string _login;
+  friend ofstream &operator<<(ofstream&, const User*);
   friend ifstream &operator>>(ifstream&, User*);
+  friend class Server;
 };
