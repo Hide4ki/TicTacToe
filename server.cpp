@@ -1,55 +1,113 @@
 #include <iostream>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
+#include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 
-using namespace std;
+using namespace sf;
+
+const int w = 20;
+const int h = 20;
+
+int size = 32;
+
+int grid[w][h];
 
 int main()
 {
-    int sock, listener;
-    struct sockaddr_in addr;
-    char buf[1024];
-    int bytes_read;
+  TcpListener listener;
 
-    listener = socket(AF_INET, SOCK_STREAM, 0);
-    if(listener < 0)
-    {
-        perror("socket");
-        exit(1);
-    }
-    
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(3433);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    if(bind(listener, (struct sockaddr *)&addr, sizeof(addr)) < 0)
-    {
-        perror("bind");
-        exit(2);
-    }
+  if(listener.listen(5300) != Socket::Done)
+  {
+    return -1;
+  }
 
-    listen(listener, 1);
-    
-    while(1)
+  TcpSocket client;
+  if(listener.accept(client) != Socket::Done)
+  {
+    return -2;
+  } 
+
+  char data[5] = "hel2";
+
+  if(client.send(data, 100) != Socket::Done)
+  {
+    return -3;
+  }
+
+  std::size_t received;
+  if(client.receive(data, 5, received) != Socket::Done)
+  {
+    return -4;
+  }
+  std::cout << data << std::endl;
+  RenderWindow  window( VideoMode(size*w,size*h), "Test!", Style::Close);
+  
+  Texture free;
+  free.loadFromFile("free.png");
+
+  Texture o;
+  o.loadFromFile("o.png");
+
+  Texture x;
+  x.loadFromFile("x.png");
+  
+
+  Sprite s;
+
+  for(int i=0; i < w; i++)
+    for(int j=0; j < h; j++)
     {
-        sock = accept(listener, 0, 0);
-        if(sock < 0)
+      grid[i][j] = 0;
+    }
+  
+  bool trig = true;
+
+  while (window.isOpen()) 
+  {
+    Vector2i pos = Mouse::getPosition(window);
+    int X = pos.x/32;
+    int Y = pos.y/32;
+
+    Event event;
+
+    while(window.pollEvent(event))
+    {
+      if(event.type == Event::Closed)
+        window.close();
+      
+      if(event.type == Event::MouseButtonPressed && grid[Y][X] == 0)
+        if(trig) 
         {
-            perror("accept");
-            exit(3);
+          grid[Y][X] = 1; 
+          trig = false;
         }
-
-        while(1)
+        else 
         {
-            bytes_read = recv(sock, buf, 1024, 0);
-            if(bytes_read <= 0) break;
-            cout <<  buf;
-            send(sock, buf, sizeof(buf), 0);
+          grid[Y][X] = 2; 
+          trig = true;
         }
-    
-        close(sock);
     }
+
+    window.clear();
     
-    return 0;
+    for(int i=0; i < w; i++)
+      for(int j=0; j < h; j++)
+      {
+        switch(grid[i][j])
+        {
+          case 0:
+            s.setTexture(free);
+            break;
+          case 1:
+            s.setTexture(o);
+            break;
+          case 2:
+            s.setTexture(x);
+            break;
+        }
+        s.setPosition(j*size,i*size);
+        window.draw(s);
+      }
+    window.display();
+  }
+  return 0;
 }

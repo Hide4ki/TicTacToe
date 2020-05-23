@@ -1,38 +1,136 @@
+#include <string>
+#include <SFML/Network.hpp>
+#include <SFML/Graphics.hpp>
 #include <iostream>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
+#include <vector>
 
 using namespace std;
+using namespace sf;
 
-char message[1024] = "Artem is cool men. message from other Artem!\n";
-char buf[1024];
+const int w = 20;
+const int h = 20;
 
-int main()
-{
-    int sock;
-    struct sockaddr_in addr;
+int size = 32;
 
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(sock < 0)
+int grid[w][h];
+
+  bool fSend = false;
+int main() {
+
+  IpAddress ip = "192.168.1.233";
+  TcpSocket socket;
+  Uint32 id;
+
+  cout << "Введите свой id: ";
+  cin >> id;
+
+  socket.connect(ip, 1131);
+
+  RenderWindow Window(VideoMode(h*size, w*size, 32), "Client Test", Style::Close);
+
+  vector<RectangleShape> rects;
+
+  {
+    Packet packet;
+    packet << id;
+    socket.send(packet);
+    Packet pList;
+    socket.receive(pList);
+    Uint32 n;
+    pList >> n;
+    cout << "Player list" << endl;
+    for(int i=0; i<n; i++)
     {
-        perror("socket");
-        exit(1);
+      Uint32 tmp;
+      pList >> tmp;
+      cout << tmp << " ";  
     }
-    inet_aton("192.168.1.233", &addr.sin_addr);
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(3432); // или любой другой порт...
-    if(connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
-    {
-        perror("connect");
-        exit(2);
-    }
-    send(sock, message, sizeof(message), 0);
-    recv(sock, buf, sizeof(buf), 0);
+    cout << endl;
+  }
+
+
+  Window.setTitle(id);
+
+  Texture free;
+  free.loadFromFile("free.png");
+
+  Texture o;
+  o.loadFromFile("o.png");
+
+  Texture x;
+  x.loadFromFile("x.png");
   
-    close(sock);
 
-    return 0;
+  Sprite s;
+
+  for(int i=0; i < w; i++)
+    for(int j=0; j < h; j++)
+    {
+      grid[i][j] = 0;
+    }
+  while(Window.isOpen()) {
+    Event event;
+    Vector2i pos = Mouse::getPosition(Window);
+    sf::Uint32 X = pos.x/32;
+    sf::Uint32 Y = pos.y/32;
+
+    while (Window.pollEvent(event)) {
+        switch (event.type) {
+        case Event::Closed:
+          Window.close();
+          break;
+        case Event::KeyPressed:
+          if (event.key.code == Keyboard::Escape)
+              Window.close();
+          break;
+        case Event::MouseButtonPressed:
+          if(grid[Y][X] == 0)
+          {
+            grid[Y][X] = 1; 
+            fSend = true;
+          }
+          break;
+        }
+    }
+
+            
+    if(fSend)
+      {
+        cout << "send" << endl;
+        cout << Y << "\t" << X << endl;
+        Packet packet;
+        packet << Y << X;
+        socket.send(packet);
+        Packet sPack;
+        socket.receive(sPack);
+        Uint32 x,y;
+        sPack >> x >> y;
+        grid[x][y] = 2;
+        fSend = false;
+      }
+    //socket.receive(packet);
+    Window.clear();
+    for(int i=0; i < w; i++)
+      for(int j=0; j < h; j++)
+      {
+        switch(grid[i][j])
+        {
+          case 0:
+            s.setTexture(free);
+            break;
+          case 1:
+            s.setTexture(o);
+            break;
+          case 2:
+            s.setTexture(x);
+            break;
+        }
+        s.setPosition(j*size,i*size);
+        Window.draw(s);
+      }
+    Window.display();
+  }
+
+  system("pause");
+  return 0;
 }

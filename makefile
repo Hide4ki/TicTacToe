@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS= -g3 -c -Wall -std=c++1z
+CFLAGS= -g3 -c -Wall -std=c++11 
 
 SOURCES=main.cpp
 
@@ -12,8 +12,7 @@ all: $(SOURCES) $(EXECUTABLE)
 	rm -rf *.o 
 
 $(EXECUTABLE): $(OBJECTS) 
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
-
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@ -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@
 
