@@ -1,67 +1,48 @@
-#include <iostream>
+#include <string>
+#include <SFML/Network.hpp>
 #include <SFML/Graphics.hpp>
-#include "TextBox.hpp"
+#include <iostream>
+#include <vector>
+#include "BorderDecor.hpp"
 #include "Button.hpp"
-#include "Field.hpp"
+#include "HeaderDecor.hpp"
 
 using namespace std;
 using namespace sf;
 
 int main() 
 {
-	RenderWindow window;
-
-	Vector2i centerWindow((VideoMode::getDesktopMode().width / 2) - 445, (VideoMode::getDesktopMode().height / 2) - 480);
-
-	window.create(VideoMode(900, 900), "SFML Textbox", Style::Titlebar | Style::Close);
-	window.setPosition(centerWindow);
-
-	window.setKeyRepeatEnabled(true);
-
 	Font font;
 	if (!font.loadFromFile("arial.ttf"))
-		cout << "Font not found!\n";
+		cout << "Font not found!\n";  
+  RenderWindow Window(VideoMode(500, 500, 32), "Test");
+  Button *newB = new Button({120,120}, {330,210}, Color::White);
+  BorderDecor *newElem = new BorderDecor(newB, 3, Color::Red);
+  HeaderDecor *tmp = new HeaderDecor(newElem, "Hello World", font, {0, 0}, Color::Black, 20, true, true);
 
-	TextBox text1({ 100, 100 }, 23,21, 20, Color::White, true);
-	text1.SetLimit(true, 30);
-	text1.SetFont(font);
-
-	Button btn1("Enter",{ 300, 100}, { 200, 100 }, 30, Color::Green, Color::Black);
-	btn1.SetFont(font);
-	
-  Field f({0,0},5,5);
-
-	//Main Loop:
-	while (window.isOpen()) 
-  {
-
-    Event Event;
-
-		while (window.pollEvent(Event)) 
+  while(Window.isOpen()) {
+    Event event;
+   
+    while (Window.pollEvent(event)) 
     {
-			switch (Event.type) 
-      {
+        switch (event.type) {
+        case Event::Closed:
+          Window.close();
+          break;
+        case Event::KeyPressed:
+          break;
+        case Event::MouseButtonPressed:
 
-			case Event::Closed:
-				window.close();
-			case Event::TextEntered:
-				text1.Reseive(Event);
-			case Event::MouseMoved:
-				if (btn1.isMouseOver(window)) 
-					btn1.SetBackColor(Color::Magenta);
-				else 
-          btn1.SetBackColor(Color::Green);
-				break;
-			case Event::MouseButtonPressed:;
-				if (btn1.isMouseOver(window)) {
-					std::cout << "Hello " << text1.GetText() << "\n";
-				}
-			}
-		}
-		window.clear();
-    f.DrawTo(window);
-		//text1.DrawTo(window);
-		//btn1.DrawTo(window);
-		window.display();
-	}
+          if(tmp->isMouseOver(Window))
+            tmp->OnClick();  
+          break;
+        }
+    }
+ 
+    Window.clear();
+    tmp->DrawTo(Window);
+    Window.display();
+  }
+  delete tmp;
+  return 0;
 }

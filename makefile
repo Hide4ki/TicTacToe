@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS= -g3 -c -Wall -std=c++1z 
 
-SOURCES= client.cpp User.cpp TextBox.cpp ExPacket.cpp Button.cpp PartGUI.cpp Field.cpp
+SOURCES= client.cpp User.cpp TextBox.cpp ExPacket.cpp Button.cpp PartGUI.cpp Field.cpp GUI.cpp
 
 BUILDDIR  = obj/
 DIR = /home/artem/TicTacToe

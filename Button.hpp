@@ -1,26 +1,17 @@
 #pragma once
 
-#include <iostream>
-#include <SFML/Graphics.hpp>
-#include "PartGUI.hpp"
-#include "TextBox.hpp"
+#include "VisualComponent.hpp"
 
-using namespace std;
 using namespace sf;
 
-class Button : public PartGUI {
+class Button : public VisualComponent
+{
 public:
-	Button(Vector2f, Uint32, Uint32);
-	void SetFont(Font &);
-  void SetText(string);
-	void SetBackColor(Color);
-	void SetTextColor(Color);
-	void SetPosition(Vector2f);
-  void SetTextSize(Uint32);
-	void DrawTo(RenderWindow &);
-  void AddBox(TextBox*);
+  Button(Vector2f, Vector2f, Color);
+  Button() = delete;
+  void DrawTo(RenderWindow&) override;
+  void OnClick() override;
+  void ReSize(Vector2f) override;
 private:
-	RectangleShape _button;
-	Text _text;
-  vector<TextBox *> _linkBoxs;
+  RectangleShape _body; 
 };

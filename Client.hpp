@@ -12,5 +12,8 @@ using namespace sf;
 class Client
 {
 public:
+  void Connect();
+  void Login();
 private:
+  GUI _gui;
 };
