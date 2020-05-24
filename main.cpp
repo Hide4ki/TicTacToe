@@ -6,6 +6,7 @@
 #include "BorderDecor.hpp"
 #include "Button.hpp"
 #include "HeaderDecor.hpp"
+#include "InputBox.hpp"
 
 using namespace std;
 using namespace sf;
@@ -19,7 +20,7 @@ int main()
   Button *newB = new Button({120,120}, {330,210}, Color::White);
   BorderDecor *newElem = new BorderDecor(newB, 3, Color::Red);
   HeaderDecor *tmp = new HeaderDecor(newElem, "Hello World", font, {0, 0}, Color::Black, 20, true, true);
-
+  InputBox box({10,10}, {200,130}, font, Color::Green, Color::Red, 20, 25);
   while(Window.isOpen()) {
     Event event;
    
@@ -31,8 +32,12 @@ int main()
           break;
         case Event::KeyPressed:
           break;
+        case Event::TextEntered:
+          box.Record(event);
+          break;
         case Event::MouseButtonPressed:
-
+          if(box.isMouseOver(Window))
+            box.OnClick();
           if(tmp->isMouseOver(Window))
             tmp->OnClick();  
           break;
@@ -40,6 +45,7 @@ int main()
     }
  
     Window.clear();
+    box.DrawTo(Window);
     tmp->DrawTo(Window);
     Window.display();
   }
