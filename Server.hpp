@@ -12,12 +12,15 @@
 using namespace std;
 using namespace sf;
 
+const string fileUsers("cash.txt");
+
 class Server
 {
 public:
+  static Server* Instance();
   void Work();
   void Stop();
-  
+
 private:
   Server();
   Server(const Server&) = delete;
@@ -32,10 +35,6 @@ private:
   User *Login(string&, Uint32);
   void SafeConnect(User*, TcpSocket*);
 
-public:
-  static Server* Instance();
-
-private:
   static Server* _instance;  
   TcpListener _listener;
   SocketSelector _selector;

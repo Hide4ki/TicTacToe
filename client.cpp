@@ -1,135 +1,82 @@
-#include <string>
-#include <SFML/Network.hpp>
-#include <SFML/Graphics.hpp>
 #include <iostream>
-#include <vector>
+#include <SFML/Graphics.hpp>
+#include "TextBox.hpp"
+#include "Button.hpp"
+#include "BG.hpp"
+#include "Field.hpp"
+
 
 using namespace std;
 using namespace sf;
 
-const int w = 20;
-const int h = 20;
-Uint32 myfig = 2;
-Uint32 opfig = 1;
-int px = 32;
+int main() 
+{
+  RenderWindow window;
 
-int grid[w][h];
+	window.create(VideoMode(500,230), "Connect Test", Style::Titlebar | Style::Close);
 
-bool fSend = false;
+	Font font;
+	if (!font.loadFromFile("arial.ttf"))
+		cout << "Font not found!\n";
 
-int main() {
-
-  IpAddress ip = "192.168.1.233";
-  TcpSocket socket;
-  Uint32 id;
-
-  cout << "Введите свой id: ";
-  cin >> id;
-
-  socket.connect(ip, 1132);
-
-  RenderWindow Window(VideoMode(h*px, w*px, 32), "Client Test", Style::Close);
-
-  vector<RectangleShape> rects;
-
+	TextBox textBoxIp({5, 40}, 65, 20);
+	textBoxIp.SetFont(font);
+  textBoxIp.SetColor(Color::Black);
+  textBoxIp.SetSelected(true);
+  textBoxIp.SetLimit(22);
+  textBoxIp.SetHeader("Enter IP");
+	Button bottonBox({5, 175}, 75, 25);
+  bottonBox.SetText("Confirm");
+  bottonBox.SetTextSize(20);
+  bottonBox.SetFont(font);
+  bottonBox.SetBackColor(Color::Black);
+  bottonBox.SetTextColor(Color::White);
+  TextBox textBoxPort({5, 125}, 65, 20);
+	textBoxPort.SetFont(font);
+  textBoxPort.SetColor(Color::Black);
+  textBoxPort.SetSelected(false);
+  textBoxPort.SetLimit(22);
+  textBoxPort.SetHeader("Enter Port");
+  BG bg(Color::White);
+	while (window.isOpen()) 
   {
-    Packet packet;
-    packet << id;
-    socket.send(packet);
-    Packet pList;
-    socket.receive(pList);
-    Uint32 n;
-    pList >> n;
-    cout << "Player list" << endl;
-    for(int i=0; i<n; i++)
+    Event Event;
+
+		while (window.pollEvent(Event)) 
     {
-      Uint32 tmp;
-      pList >> tmp;
-      cout << tmp << " ";  
-    }
-    cout << endl;
-  }
-
-  Texture free;
-  free.loadFromFile("free.png");
-
-  Texture o;
-  o.loadFromFile("o.png");
-
-  Texture x;
-  x.loadFromFile("x.png");
-  
-
-  Sprite s;
-
-  for(int i=0; i < w; i++)
-    for(int j=0; j < h; j++)
-    {
-      grid[i][j] = 0;
-    }
-  while(Window.isOpen()) {
-    Event event;
-    Vector2i pos = Mouse::getPosition(Window);
-    sf::Uint32 X = pos.x/32;
-    sf::Uint32 Y = pos.y/32;
-
-    while (Window.pollEvent(event)) {
-        switch (event.type) {
-        case Event::Closed:
-          Window.close();
-          break;
-        case Event::KeyPressed:
-          if (event.key.code == Keyboard::Escape)
-              Window.close();
-          break;
-        case Event::MouseButtonPressed:
-          if(grid[Y][X] == 0)
-          {
-            grid[Y][X] = myfig; 
-            fSend = true;
-          }
-          break;
-        }
-    }
-
-            
-    if(fSend)
+			switch (Event.type) 
       {
-        cout << "send" << endl;
-        cout << Y << "\t" << X << endl;
-        Packet packet;
-        packet << Y << X;
-        socket.send(packet);
-        Packet sPack;
-        socket.receive(sPack);
-        Uint32 x,y;
-        sPack >> x >> y;
-        grid[x][y] = opfig;
-        fSend = false;
-      }
-    //socket.receive(packet);
-    Window.clear();
-    for(int i=0; i < w; i++)
-      for(int j=0; j < h; j++)
-      {
-        switch(grid[i][j])
-        {
-          case 0:
-            s.setTexture(free);
-            break;
-          case 1:
-            s.setTexture(o);
-            break;
-          case 2:
-            s.setTexture(x);
-            break;
-        }
-        s.setPosition(j*px,i*px);
-        Window.draw(s);
-      }
-    Window.display();
-  }
+			case Event::Closed:
+				window.close();
+        break;
+      case Event::TextEntered:
+        textBoxIp.Reseive(Event);
+        textBoxPort.Reseive(Event);
+        break;
+			case Event::MouseMoved:
+				break;
+			case Event::MouseButtonPressed:
+        if (textBoxIp.isMouseOver(window))
+          textBoxIp.SetSelected(true);
+        else
+          textBoxIp.SetSelected(false);
+        
+        if (textBoxPort.isMouseOver(window))
+          textBoxPort.SetSelected(true);
+        else
+          textBoxPort.SetSelected(false);
 
-  system("pause");
+				if (bottonBox.isMouseOver(window)) 
+					std::cout << "Hello " << textBoxIp.GetText() << "\n";
+        break;
+			}
+		}
+		window.clear();
+    bg.DrawTo(window);
+		textBoxIp.DrawTo(window);
+		textBoxPort.DrawTo(window);
+		bottonBox.DrawTo(window);
+		window.display();
+  }
   return 0;
 }

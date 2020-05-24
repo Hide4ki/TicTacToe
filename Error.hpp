@@ -1,3 +1,3 @@
 #pragma once
 
-enum class Error{None};
+enum class Error{None, LastError};

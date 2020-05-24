@@ -28,7 +28,17 @@ Server::Server()
 {
   _listener.listen(1132);
   _selector.add(_listener);
-  _protoId = 0;//todo read from file;
+  ifstream fin(fileUsers);
+  fin >> _protoId;
+
+  int numUser;
+  fin >> numUser;
+  for(int i = 0; i<numUser; i++)
+  {
+    User *lUser = new User;
+    fin >> *lUser;
+    _users.push_back(lUser);
+  }
 }
 
 void Server::Work()
@@ -42,6 +52,12 @@ void Server::Work()
 
 void Server::Stop()
 {
+  ofstream fout(fileUsers);
+  fout << _protoId;
+  fout << _users.size();
+  for(auto it : _users)
+    fout << *it;
+    
   delete this;
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
 #include <string>
@@ -12,6 +13,7 @@ using namespace sf;
 class User
 {
 public:
+  User() = default;
   User(string&, Uint32);
   User(const User&) = delete;
   User(User&&) = delete;
@@ -29,7 +31,7 @@ private:
   Uint32 _cntGame;
   Uint32 _password;//TODO add md5 hash
   string _login;
-  friend ofstream &operator<<(ofstream&, const User*);
-  friend ifstream &operator>>(ifstream&, User*);
+  friend ofstream &operator<<(ofstream&, const User&);
+  friend ifstream &operator>>(ifstream&, User&);
   friend class Server;
 };

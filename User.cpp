@@ -20,3 +20,25 @@ bool User::CheckPass(Uint32 pass) const
 {
   return pass == _password;
 }
+
+ofstream &operator<<(ofstream &stream, const User &u)
+{
+  stream << u._id << endl;
+  stream << u._login << endl;
+  stream << u._password << endl;
+  stream << u._cntWon << endl;
+  stream << u._cntLost << endl;
+  stream << u._cntGame << endl;
+  return stream;
+}
+
+ifstream &operator>>(ifstream &stream, User &u)
+{
+  stream >> u._id;
+  stream >> u._login;
+  stream >> u._password;
+  stream >> u._cntWon;
+  stream >> u._cntLost;
+  stream >> u._cntGame;
+  return stream;
+}
