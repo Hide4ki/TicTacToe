@@ -14,4 +14,5 @@ public:
   void ReSize(Vector2f) override;
 private:
   RectangleShape _body; 
+
 };

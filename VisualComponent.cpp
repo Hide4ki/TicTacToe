@@ -6,8 +6,8 @@ VisualComponent::VisualComponent(Vector2f st, Vector2f fn):_st(st),_fn(fn)
 
 bool VisualComponent::isMouseOver(RenderWindow &w)
 {
-  int mouseX = Mouse::getPosition(w).x;
-  int mouseY = Mouse::getPosition(w).y;
+  Uint32 mouseX = Mouse::getPosition(w).x;
+  Uint32 mouseY = Mouse::getPosition(w).y;
 
   if (mouseX < _fn.x && mouseX > _st.x && mouseY < _fn.y && mouseY > _st.y) 
     return true;

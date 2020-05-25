@@ -6,7 +6,7 @@ OutputBox::OutputBox(Vector2f st, Vector2f fn, Font &font, Color c, Int32 chs) :
   _body.setColor(c);
   _body.setFont(font);
   _body.setPosition(st);
-  _fnStatic = fn;
+  _fnStatic = fn - st;
 }
 
 void OutputBox::DrawTo(RenderWindow &w)
@@ -28,9 +28,12 @@ void OutputBox::SetValue(string s)
 {
   _body.setString(s);
 
-  if(_body.getLocalBounds().height + 10 > VisualComponent::GetSize().y )
-    VisualComponent::ReSize({VisualComponent::GetSize().x, _body.getLocalBounds().height + 10});
+  if(_body.getLocalBounds().height > VisualComponent::GetSize().y )
+    VisualComponent::ReSize({VisualComponent::GetSize().x, _body.getLocalBounds().height});
 
-  if(_body.getLocalBounds().width + 10 > VisualComponent::GetSize().x || _fnStatic.x + 10 < VisualComponent::GetSize().x)
-    VisualComponent::ReSize({_body.getLocalBounds().width + 10, VisualComponent::GetSize().y});
+  if(_fnStatic.x + 5 < VisualComponent::GetSize().x)
+    VisualComponent::ReSize({_fnStatic.x + 5, VisualComponent::GetSize().y});
+
+ if(_body.getLocalBounds().width + 5 > VisualComponent::GetSize().x)
+    VisualComponent::ReSize({_body.getLocalBounds().width + 5, VisualComponent::GetSize().y});
 }

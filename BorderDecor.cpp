@@ -16,9 +16,3 @@ void BorderDecor::DrawTo(RenderWindow &w)
   w.draw(_entity);
   Decorator::DrawTo(w);
 }
-
-void BorderDecor::ReSize(Vector2f s)
-{
-  Decorator::ReSize(s);
-  _entity.setSize(Decorator::GetSize());
-}

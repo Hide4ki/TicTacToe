@@ -16,6 +16,7 @@ class GUI
 public:
   void RunConnectWin(string &, string &);
   void RunLoginWin(string &, string &);
-  void RunField()
+  void RunField();
 private:
+  
 };
