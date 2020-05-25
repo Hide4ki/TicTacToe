@@ -38,3 +38,20 @@ Decorator::~Decorator()
 {
   delete _component;
 }
+
+string Decorator::GetValue()
+{
+  return _component->GetValue();
+}
+
+void Decorator::SetValue(string s) 
+{
+  _component->SetValue(s);
+}
+
+void Decorator::AddCh(Event &e)
+{
+  _component->AddCh(e);
+}
+
+

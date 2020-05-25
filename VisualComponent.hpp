@@ -20,6 +20,9 @@ public:
   virtual Vector2f GetPosition();
   virtual Vector2f GetSize();
   virtual void ReSize(Vector2f);
+  virtual string GetValue();
+  virtual void SetValue(string);
+  virtual void AddCh(Event&);
 private:
   Vector2f _st;
   Vector2f _fn;

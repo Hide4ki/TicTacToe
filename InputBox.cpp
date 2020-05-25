@@ -1,12 +1,13 @@
 #include "InputBox.hpp"
 #include "Key.hpp"
 
-InputBox::InputBox(Vector2f st, Vector2f fn, Font &font, Color tc, Color bgc, Int32 chs, Int32 l):VisualComponent(st,fn), _limit(l)
+InputBox::InputBox(Vector2f st, Vector2f fn, Font &font, Color tc,  Int32 chs, Int32 l):VisualComponent(st,fn), _limit(l)
 {
   _body.setCharacterSize(chs);
-  _body.setFillColor(bgc);
   _body.setColor(tc);
   _body.setFont(font);
+  _body.setPosition(st);
+  _fnStatic = fn;
 }
 
 void InputBox::DrawTo(RenderWindow &w)
@@ -17,7 +18,7 @@ void InputBox::DrawTo(RenderWindow &w)
 void InputBox::OnClick()
 {
   _select = true;
-  _body.setString(_cout + "_");
+  SetValue(_limit != _cout.length()?_cout + "_":_cout);
 }
 
 bool InputBox::isMouseOver(RenderWindow &w)
@@ -26,12 +27,12 @@ bool InputBox::isMouseOver(RenderWindow &w)
   if(!res)
   {
     _select = false;
-    _body.setString(_cout);
+    SetValue(_cout);
   }
   return res;
 }
 
-void InputBox::Record(Event &e)
+void InputBox::AddCh(Event &e)
 {
   if(_select)
   {
@@ -56,6 +57,21 @@ void InputBox::Enter(Uint32 ch)
   }
   else if(((_limit < 0 || _limit > _cout.length())) && ch>=' ')
     _cout += ch;
+  SetValue(_limit != _cout.length()?_cout + "_":_cout);
+}
 
-  _body.setString(_cout + "_");
+void InputBox::SetValue(string val)
+{
+  _body.setString(val);
+
+  if(_body.getLocalBounds().height + 10 > VisualComponent::GetSize().y )
+    VisualComponent::ReSize({VisualComponent::GetSize().x, _body.getLocalBounds().height + 10});
+
+  if(_body.getLocalBounds().width + 10 > VisualComponent::GetSize().x || _fnStatic.x + 10 < VisualComponent::GetSize().x)
+    VisualComponent::ReSize({_body.getLocalBounds().width + 10, VisualComponent::GetSize().y});
+}
+
+string InputBox::GetValue()
+{
+  return _body.getString();
 }

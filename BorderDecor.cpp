@@ -11,6 +11,8 @@ BorderDecor::BorderDecor(VisualComponent *vc, Uint32 w, Color c) : Decorator(vc)
 
 void BorderDecor::DrawTo(RenderWindow &w)
 {
+  _entity.setPosition(Decorator::GetPosition());
+  _entity.setSize(Decorator::GetSize());
   w.draw(_entity);
   Decorator::DrawTo(w);
 }

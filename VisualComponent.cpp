@@ -29,3 +29,21 @@ void VisualComponent::ReSize(Vector2f s)
 { 
   _fn -= GetSize() - s;
 }
+
+
+string VisualComponent::GetValue()
+{
+  return "";
+}
+
+void VisualComponent::SetValue(string)
+{
+
+}
+
+void VisualComponent::AddCh(Event&)
+{
+
+}
+
+
