@@ -1,7 +1,6 @@
 #pragma once
 
 #include "VisualComponent.hpp"
-#include <sstream>
 
 class InputBox : public VisualComponent
 {
@@ -12,6 +11,7 @@ public:
   bool isMouseOver(RenderWindow&) override;
   void AddCh(Event&) override;
   string GetValue() override;
+  VisualComponent *SetValue(string) override;
 private:
   Text _body;
   string _cout;  
@@ -19,5 +19,4 @@ private:
   bool _select;
   Vector2f _fnStatic;
   void Enter(Uint32);
-  void SetValue(string);
 };

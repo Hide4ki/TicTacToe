@@ -1,1 +1,0 @@
-g++ main.cpp Border.cpp Botton.cpp Decorator.cpp VisualComponent.cpp -g3 -std=c++1z  -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network

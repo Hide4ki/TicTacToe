@@ -2,7 +2,6 @@
 
 
 #include "Decorator.hpp"
-#include <string>
 
 using namespace std;
 

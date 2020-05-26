@@ -60,7 +60,8 @@ void InputBox::Enter(Uint32 ch)
   SetValue(_limit != _cout.length()?_cout + "_":_cout);
 }
 
-void InputBox::SetValue(string val)
+
+VisualComponent *InputBox::SetValue(string val)
 {
   _body.setString(val);
 
@@ -72,6 +73,7 @@ void InputBox::SetValue(string val)
 
   if(_body.getLocalBounds().width + 5 > VisualComponent::GetSize().x)
     VisualComponent::ReSize({_body.getLocalBounds().width + 5, VisualComponent::GetSize().y});
+  return this;
 }
 
 string InputBox::GetValue()

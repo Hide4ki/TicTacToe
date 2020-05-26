@@ -2,8 +2,6 @@
 
 #include "VisualComponent.hpp"
 
-using namespace sf;
-
 class Button : public VisualComponent
 {
 public:

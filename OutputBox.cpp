@@ -24,7 +24,7 @@ string OutputBox::GetValue()
   return _body.getString();
 }
 
-void OutputBox::SetValue(string s)
+VisualComponent *OutputBox::SetValue(string s)
 {
   _body.setString(s);
 
@@ -36,4 +36,5 @@ void OutputBox::SetValue(string s)
 
  if(_body.getLocalBounds().width + 5 > VisualComponent::GetSize().x)
     VisualComponent::ReSize({_body.getLocalBounds().width + 5, VisualComponent::GetSize().y});
+  return this;
 }

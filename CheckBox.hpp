@@ -9,7 +9,7 @@ public:
   void DrawTo(RenderWindow&) override;
   void OnClick() override;
   string GetValue() override;
-  void SetValue(string) override;
+  VisualComponent *SetValue(string) override;
 private:
   Sprite _body;
   Texture *_yes;

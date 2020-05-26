@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <sstream>
 
 using namespace std;
 using namespace sf;
@@ -21,7 +22,7 @@ public:
   virtual Vector2f GetSize();
   virtual void ReSize(Vector2f);
   virtual string GetValue();
-  virtual void SetValue(string);
+  virtual VisualComponent *SetValue(string);
   virtual void AddCh(Event&);
 private:
   Vector2f _st;

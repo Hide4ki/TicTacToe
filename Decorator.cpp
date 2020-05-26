@@ -44,9 +44,10 @@ string Decorator::GetValue()
   return _component->GetValue();
 }
 
-void Decorator::SetValue(string s) 
+VisualComponent *Decorator::SetValue(string s) 
 {
   _component->SetValue(s);
+  return this;
 }
 
 void Decorator::AddCh(Event &e)

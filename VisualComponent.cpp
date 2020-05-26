@@ -36,9 +36,9 @@ string VisualComponent::GetValue()
   return "";
 }
 
-void VisualComponent::SetValue(string)
+VisualComponent *VisualComponent::SetValue(string)
 {
-
+  return this;
 }
 
 void VisualComponent::AddCh(Event&)

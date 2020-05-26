@@ -1,8 +1,16 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+
 #include <vector>
 #include "VisualComponent.hpp"
 #include "WindowTTTBuilder.hpp"
+#include "BorderDecor.hpp"
+#include "Button.hpp"
+#include "HeaderDecor.hpp"
+#include "InputBox.hpp"
+#include "BackGroundDecor.hpp"
+#include "OutputBox.hpp"
+#include "CheckBox.hpp"
+#include "Field.hpp"
 
 class WindowTTTBuilder;
 

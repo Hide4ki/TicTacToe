@@ -62,12 +62,13 @@ bool Field::isMouseOver(RenderWindow &w)
   return VisualComponent::isMouseOver(w);
 }
 
-void Field::SetValue(string s)
+VisualComponent *Field::SetValue(string s)
 {
   istringstream sin(s);
   Uint32 x,y;
   sin >> x >> y;
   _grid[x][y] = !_side?1:2;
+  return this;
 }
 
 string Field::GetValue()

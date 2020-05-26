@@ -9,7 +9,7 @@ public:
   void DrawTo(RenderWindow&)override;
   void OnClick() override;
   string GetValue() override;
-  void SetValue(string) override;
+  VisualComponent *SetValue(string) override;
   bool isMouseOver(RenderWindow &) override;
   virtual ~Field();
 private:

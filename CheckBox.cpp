@@ -26,10 +26,12 @@ string CheckBox::GetValue()
   return _value?"Y":"N";
 }
 
-void CheckBox::SetValue(string s)
+VisualComponent *CheckBox::SetValue(string s)
 {
   if(s=="Y")
     _value = true;
   else
     _value = false;
+  _body.setTexture(_value?*_yes:*_no);
+  return this;
 }
