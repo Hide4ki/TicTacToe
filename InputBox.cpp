@@ -78,5 +78,6 @@ VisualComponent *InputBox::SetValue(string val)
 
 string InputBox::GetValue()
 {
-  return _body.getString();
+  auto tmp = _body.getString();
+  return tmp==""?"0":tmp;
 }

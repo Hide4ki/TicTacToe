@@ -8,11 +8,10 @@
 #include "User.hpp"
 #include "MessageType.hpp"
 #include "ExPacket.hpp"
+#include "MatchState.hpp"
 
 using namespace std;
 using namespace sf;
-
-const string fileUsers("cash.txt");
 
 class Server
 {
@@ -20,6 +19,7 @@ public:
   static Server* Instance();
   void Work();
   void Stop();
+  bool isWasStoped();
 
 private:
   Server();
@@ -28,16 +28,16 @@ private:
   Server &operator=(const Server&) = delete;
   Server &operator=(Server&&) = delete;
   virtual ~Server();
-  bool isRegistered(string&);
-  User *Registration(string&, Uint32);
+  User* Registration();
   void ConnectUser();
   void Proccessing();
-  User *Login(string&, Uint32);
+  bool CheckBorder(Vector2i,Vector2i);
+  MatchState GetStateMatch(Int32 **, Vector2i, Vector2i, Int32&);
   void SafeConnect(User*, TcpSocket*);
-
   static Server* _instance;  
   TcpListener _listener;
   SocketSelector _selector;
   vector<User*> _users;
   Uint32 _protoId;
+  bool _stop;
 };

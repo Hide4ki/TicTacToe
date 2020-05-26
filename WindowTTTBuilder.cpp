@@ -69,3 +69,20 @@ WindowTTTBuilder *WindowTTTBuilder::AddCheckBox(VisualComponent *vc)
   return this;
 }
 
+WindowTTTBuilder *WindowTTTBuilder::SetSocket(TcpSocket *s)
+{
+  _socket = s;
+  return this;
+}
+
+WindowTTTBuilder *WindowTTTBuilder::SetMessageType(MessageType m)
+{
+  _message = m;
+  return this;
+}
+
+WindowTTTBuilder *WindowTTTBuilder::SetTypeWin(WinType wt)
+{
+  _type = wt;
+  return this;
+}

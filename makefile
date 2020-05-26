@@ -9,10 +9,10 @@ OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=TicTacToe.out
 
 all: $(SOURCES) $(EXECUTABLE)
-	$(CC) server.cpp $(CFLAGS) -o ServerTTT.out $(CFLAGS)-lsfml-graphics -lsfml-window -lsfml-system -lsfml-network -pthread
+	$(CC) server.cpp User.cpp ExPacket.cpp -std=c++1z -g3 -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network -pthread
 	rm -rf *.o 
 
 $(EXECUTABLE): $(OBJECTS) 
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@ -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@ -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network -pthread
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

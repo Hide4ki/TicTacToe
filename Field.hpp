@@ -5,7 +5,7 @@
 class Field : public VisualComponent
 {
 public: 
-  Field(Vector2f, Uint32, Uint32, Texture&, Texture&, Texture&, bool);
+  Field(Vector2f, Int32, Int32, Texture&, Texture&, Texture&, Texture&, Texture&, bool);
   void DrawTo(RenderWindow&)override;
   void OnClick() override;
   string GetValue() override;
@@ -17,10 +17,12 @@ private:
   Uint32 **_grid;
   Uint32 _h;
   Uint32 _w;
-  Uint32 _x;
-  Uint32 _y;
+  Int32 _x;
+  Int32 _y;
   Texture *_X;
   Texture *_O;
+  Texture *_Xwin;
+  Texture *_Owin;
   Texture *_free;
   bool _side;
   void ReSize(Vector2f)override{};

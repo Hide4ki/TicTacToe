@@ -1,5 +1,7 @@
 #pragma once
 #include "WindowTTT.hpp"
+#include "MessageType.hpp"
+#include "WinType.hpp"
 
 class WindowTTTBuilder
 {
@@ -13,6 +15,9 @@ public:
   WindowTTTBuilder *AddInputTextBox(VisualComponent*);
   WindowTTTBuilder *AddOutputTextBox(VisualComponent*);
   WindowTTTBuilder *AddCheckBox(VisualComponent*);
+  WindowTTTBuilder *SetMessageType(MessageType);
+  WindowTTTBuilder *SetSocket(TcpSocket*);
+  WindowTTTBuilder *SetTypeWin(WinType);
 private:
   string _winName;
   Vector2f _size;
@@ -22,5 +27,8 @@ private:
   vector<VisualComponent*> _itextb;
   vector<VisualComponent*> _otextb;
   vector<VisualComponent*> _chb;
+  TcpSocket *_socket;
+  MessageType _message;
+  WinType _type;
   friend class WindowTTT;
 };
