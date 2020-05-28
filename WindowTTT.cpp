@@ -12,7 +12,7 @@ void WindowTTT::WindowHandler()
 {
   bool lock = false;
   bool side;
-
+  bool gameEnd = false;
   Event e;
   while(_window.pollEvent(e));
   _window.clear();
@@ -63,9 +63,11 @@ void WindowTTT::WindowHandler()
         case MatchState::WinX:
           {
             _field->SetValue(s);
+            gameEnd = true;
           }
         break;
         case MatchState::Tie:
+          gameEnd = true;
         break;
       }
       lock = false;
@@ -129,7 +131,7 @@ void WindowTTT::WindowHandler()
               }
               _window.close();
             }
-          if(_field != 0)
+          if(_field != 0 && !gameEnd)
             if(_field->isMouseOver(_window))
             {
               _field->OnClick();
@@ -162,7 +164,6 @@ void WindowTTT::WindowHandler()
       _field->DrawTo(_window);
     _window.display();
   }
-  delete this;
 }
 
 WindowTTT::~WindowTTT()

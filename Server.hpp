@@ -34,6 +34,11 @@ private:
   bool CheckBorder(Vector2i,Vector2i);
   MatchState GetStateMatch(Int32 **, Vector2i, Vector2i, Int32&);
   void SafeConnect(User*, TcpSocket*);
+  void SetAIgrid(Int32 **, Int32, Int32);
+  Vector2i GenerateAImove(Int32**, Int32**, Vector2i, Int32&, Int32&);
+  void CalcValueCell(Int32 **, Vector2i, Vector2i, Int32, Int32 *);
+  Int32 GetUserValue(Int32*);
+  Int32 GetAIValue(Int32*);
   static Server* _instance;  
   TcpListener _listener;
   SocketSelector _selector;

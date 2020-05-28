@@ -35,6 +35,9 @@ int main()
 
   w1->WindowHandler();
 
+  delete w1;
+
+
   WindowTTT *w5 = new WindowTTT((new WindowTTTBuilder())->\
   SetWinName("Match configuration")->\
   SetStyle(Style::Close)->\
@@ -49,28 +52,28 @@ int main()
   SetMessageType(MessageType::Config)->\
   SetSocket(&socket)->\
   SetTypeWin(WinType::Config));
+  w5->WindowHandler();  
+  delete w5;
 
-  while(true)
+  Packet packet;
+  Uint32 a , b;
+  bool f;
+  if(socket.receive(packet) == Socket::Done)
   {
-    w5->WindowHandler();  
-    Packet packet;
-    Uint32 a , b;
-    bool f;
-    if(socket.receive(packet) == Socket::Done)
-    {
-      packet >> a >> b >> f;
-    }
-
-
-    WindowTTT *w4 = new WindowTTT((new WindowTTTBuilder())->\
-    SetWinName("Play")->SetStyle(Style::Close)->\
-    AddField(new BorderDecor(new Field({30,30},a,b,free,X,O,Xw,Ow,f), 3, Color::Red))->\
-    SetWinSize({a*32 + 60,b*32 + 60})->\
-    SetMessageType(MessageType::Move)->\
-    SetSocket(&socket));
-
-    w4->WindowHandler(); 
+    packet >> a >> b >> f;
   }
+
+
+  WindowTTT *w4 = new WindowTTT((new WindowTTTBuilder())->\
+  SetWinName("Play")->SetStyle(Style::Close)->\
+  AddField(new BorderDecor(new Field({30,30},a,b,free,X,O,Xw,Ow,f), 3, Color::Red))->\
+  SetWinSize({a*32 + 60,b*32 + 60})->\
+  SetMessageType(MessageType::Move)->\
+  SetSocket(&socket));
+
+  w4->WindowHandler(); 
+  delete w4;
+
     // WindowTTT *w3 = new WindowTTT((new WindowTTTBuilder())->\
     // SetWinName("Error")->SetStyle(Style::Close)->\
     // AddOutputTextBox((new BorderDecor(new BackGroundDecor(new OutputBox({30,25}, {390,50}, font, Color::Black, 20),Color::White), 3, Color::Red))->SetValue("Test Error"))->\
@@ -78,6 +81,7 @@ int main()
     // SetWinSize({420,125}));
 
     // w3->WindowHandler();
+    
   socket.disconnect();
   return 0;
 }

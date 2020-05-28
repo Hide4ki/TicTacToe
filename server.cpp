@@ -3,11 +3,12 @@
 using namespace std;
 using namespace sf;
 #include <sstream>
+#include <queue>
 
 int main() 
 {
   Server *myServer = Server::Instance();
-
+  srand(time(NULL));
   while (!myServer->isWasStoped()) 
     myServer->Work();
 
@@ -32,7 +33,7 @@ bool Server::isWasStoped()
 
 Server::Server()
 {
-  _listener.listen(1172);
+  _listener.listen(1190);
   _selector.add(_listener);
   _protoId = 1;
   _stop = false;
@@ -161,7 +162,26 @@ void Server::Proccessing()
               {
                 it->_state = UserState::PlayOn;
                 it->_opponentID = 0;
+
+                confirm << it->_tictac;
                 it->_socket->send(confirm);
+                it->_AIgrid = new Int32*[it->_x];
+                for(int i = 0; i<it->_x;i++)
+                {
+                  it->_AIgrid[i] = new Int32[it->_y];
+                }
+                SetAIgrid(it->_AIgrid, it->_x, it->_y);
+                if(it->_tictac)
+                {
+                  Packet pack;
+                  pack << MatchState::GO;
+                  ostringstream ss2;
+                  ss2 << " " << it->_x/2<< " " << it->_y/2<< " " << "-1";
+                  pack << ss2.str();
+                  it->_grid[it->_x/2][it->_y/2] = 2;
+                  it->_AIgrid[it->_x/2][it->_y/2] = 0;
+                  it->_socket->send(pack);
+                }
               }
               else 
               {
@@ -218,9 +238,14 @@ void Server::Proccessing()
                     cout << tmp;
 
                     sendPack << tmp;
-                    if(ms == MatchState::WinO || ms == MatchState::WinX)
+
+                    if(ms == MatchState::WinO || ms == MatchState::WinX || ms == MatchState::Tie)
                     {
                       it->_socket->send(sendPack);
+                      it->DeleteGrid();
+                      other->DeleteGrid();
+                      it->_state = UserState::Offline;
+                      other->_state = UserState::Offline;
                     }
                     other->_socket->send(sendPack);
                     break; 
@@ -228,7 +253,64 @@ void Server::Proccessing()
               }
               else
               {
-                /* code */
+                string tmp;
+                packet >> tmp;
+                Packet sendPack;
+                istringstream ss(tmp);
+                Int32 x,y;
+                ss >> x >> y;
+                it->_grid[x][y] = it->_tictac?1:2;
+                Int32 dir;
+                MatchState ms = GetStateMatch(it->_grid,{it->_x,it->_y}, {x,y}, dir);
+                Vector2i AImove;
+                if(ms == MatchState::GO)
+                {
+                  AImove = GenerateAImove(it->_AIgrid, it->_grid, {it->_x,it->_y}, x, y);
+                  it->_grid[AImove.x][AImove.y] = !it->_tictac?1:2;
+                  it->_AIgrid[AImove.x][AImove.y] = 0;
+                  MatchState ms = GetStateMatch(it->_grid,{it->_x,it->_y},{AImove.x,AImove.y}, dir);
+                  sendPack << ms;
+                  ostringstream ss2;
+                  ss2 << " " << AImove.x << " " << AImove.y << " ";
+                  if(ms == MatchState::WinO || ms == MatchState::WinX)
+                  {
+                    ss2 << dir;
+                  }
+                  else 
+                    ss2 << "-1";
+                  tmp = ss2.str();
+                  cout << tmp;
+
+                  sendPack << tmp;
+                  if(ms == MatchState::WinO || ms == MatchState::WinX || ms == MatchState::Tie)
+                  {
+                    it->_socket->send(sendPack);
+                    it->DeleteGrid();
+                    it->_state = UserState::Offline;
+                  }
+
+                  it->_socket->send(sendPack);
+                }
+                
+                else if(ms == MatchState::WinO || ms == MatchState::WinX || ms == MatchState::Tie)
+                {
+                  sendPack << ms;
+
+                  ostringstream ss2;
+
+                  ss2 << " " << x << " " << y << " ";
+
+                  ss2 << dir;
+                  
+                  tmp = ss2.str();
+                  cout << tmp;
+
+                  sendPack << tmp;
+                  it->_socket->send(sendPack);
+                  it->DeleteGrid();
+                  it->_state = UserState::Offline;
+                  it->_socket->send(sendPack);
+                }    
               }
               
             }
@@ -261,10 +343,142 @@ MatchState Server::GetStateMatch(Int32 **grid, Vector2i size, Vector2i turn, Int
       return side == 1?MatchState::WinO:MatchState::WinX;
     }
   }
-  return MatchState::GO;
+  for(Int32 i = 0; i < size.x; i++)
+    for(Int32 j = 0; j < size.y; j++)
+      if(grid[i][j]==0)
+        return MatchState::GO;
+  return MatchState::Tie;
 }
 
 bool Server::CheckBorder(Vector2i b, Vector2i p)
 {
   return p.x < b.x && p.y < b.y && p.x >= 0 && p.y >= 0;
+}
+
+void Server::SetAIgrid(Int32 **grid, Int32 x, Int32 y)
+{
+  Int32 **visit = new Int32*[x];
+  for(int i = 0; i < x; i++)
+  {
+    visit[i] = new Int32[y];
+    for(int j = 0; j < y; j++)
+      visit[i][j] = 0;
+  }
+  auto xx = x/2;
+  auto yy = y/2;
+  Vector2i border{x,y};
+  visit[xx][yy] = 1;
+  auto vmax = max(xx,yy);
+  grid[xx][yy] = 100; 
+  queue<Vector2i> pull;
+  pull.push({xx,yy});
+  Vector2i offset[8] = {{1,1},{1,0},{0,1},{1,-1},{-1,-1},{-1,0},{0,-1},{-1,1}};
+  while(!pull.empty())
+  {
+    Vector2i now = pull.front(); 
+    pull.pop();
+    for(int i = 0; i < 8; i++)
+    {
+      Int32 x = (now + offset[i]).x;
+      Int32 y = (now + offset[i]).y;
+      if(CheckBorder(border, now + offset[i]) && visit[x][y] == 0)
+      {
+        grid[x][y] = 20;
+        pull.push({x,y});
+        visit[x][y] = 1;
+      }
+    }
+    visit[now.x][now.y] = 2;
+  }
+}
+
+Vector2i Server::GenerateAImove(Int32 **AI, Int32 **grid, Vector2i size, Int32 &x, Int32 &y)
+{
+  AI[x][y] = 0;
+  Int32 xx = x;
+  Int32 yy = y;
+  Int32 cntValue[4] = {1,1,1,1};
+  Int32 cnt1[4] = {1,1,1,1};
+  Int32 cnt2[4] = {1,1,1,1};
+  Vector2i offset[4] = {{0, 1},{1, 0},{1,1},{1,-1}};
+  Int32 maxPotential = 0;
+  Vector2i moveAI;
+  for(Int32 i = 0; i<size.x; i++)
+    for(Int32 j = 0; j<size.y; j++)
+    {
+      if(AI[i][j] != 0)
+      {
+        CalcValueCell(grid,size,{i,j}, 1, cnt1);
+        CalcValueCell(grid,size,{i,j}, 1, cnt2);
+        if(maxPotential < AI[i][j] + GetAIValue(cnt1) + GetUserValue(cnt2))
+        {
+          maxPotential = AI[i][j] + GetAIValue(cnt1) + GetUserValue(cnt2);
+          moveAI = {i,j};
+        }
+      }
+    }
+  return moveAI;
+}
+
+void Server::CalcValueCell(Int32 **grid, Vector2i size, Vector2i turn, Int32 side, Int32 *cnt)
+{
+  Vector2i offset[4] = {{0, 1},{1, 0},{1,1},{1,-1}};
+  cnt[0] = 1;
+  cnt[1] = 1;
+  cnt[2] = 1;
+  cnt[3] = 1;
+  for(Int32 i = 0; i < 4; i++)
+  {
+    for(Vector2i j = (turn + offset[i]); CheckBorder(size, j) && side == grid[j.x][j.y] && cnt[i] < 5; j+=offset[i]) cnt[i]++;
+    for(Vector2i j = (turn - offset[i]); CheckBorder(size, j) && side == grid[j.x][j.y] && cnt[i] < 5; j-=offset[i]) cnt[i]++;
+  }
+}
+
+Int32 Server::GetUserValue(Int32 *cnt)
+{
+  Int32 place = 0;
+  for(Int32 i = 0; i < 4; i++)
+  {
+    switch(cnt[i])
+    {
+      case 2:
+        place += 20;
+      break;
+      case 3:
+        place += 300;
+      break;
+      case 4:
+        place += 2000;
+      break;
+      case 5:
+        place += 40000;
+      break;
+    }
+  }
+  return place;
+}
+
+
+Int32 Server::GetAIValue(Int32 *cnt)
+{
+  Int32 place = 0;
+  for(Int32 i = 0; i < 4; i++)
+  {
+    switch(cnt[i])
+    {
+      case 2:
+        place += 50;
+      break;
+      case 3:
+        place += 500;
+      break;
+      case 4:
+        place += 1500;
+      break;
+      case 5:
+        place += 50000;
+      break;
+    }
+  }
+  return place;
 }
