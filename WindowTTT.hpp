@@ -16,7 +16,7 @@
 #include "WinType.hpp"
 #include "ExPacket.hpp"
 #include "MatchState.hpp"
-
+#include "MyException.hpp"
 
 class WindowTTTBuilder;
 
@@ -28,6 +28,7 @@ public:
   string GetValue();
   ~WindowTTT();
 private:
+  void Draw();
   RenderWindow _window;
   VisualComponent *_button;
   VisualComponent *_field;

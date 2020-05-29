@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "Decorator.hpp"
 
 using namespace std;

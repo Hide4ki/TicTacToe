@@ -1,10 +1,9 @@
 #include "InputBox.hpp"
-#include "Key.hpp"
 
 InputBox::InputBox(Vector2f st, Vector2f fn, Font &font, Color tc,  Int32 chs, Int32 l):VisualComponent(st,fn), _limit(l)
 {
   _body.setCharacterSize(chs);
-  _body.setColor(tc);
+  _body.setFillColor(tc);
   _body.setFont(font);
   _body.setPosition(st);
   _fnStatic = fn - st;

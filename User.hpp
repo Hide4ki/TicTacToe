@@ -30,7 +30,5 @@ private:
   Int32 **_grid;
   Int32 **_AIgrid;
   void DeleteGrid();
-  friend ofstream &operator<<(ofstream&, const User&);
-  friend ifstream &operator>>(ifstream&, User&);
   friend class Server;
 };

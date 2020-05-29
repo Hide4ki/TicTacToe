@@ -16,7 +16,6 @@ void OutputBox::DrawTo(RenderWindow &w)
 
 void OutputBox::OnClick()
 {
-
 }
 
 string OutputBox::GetValue()

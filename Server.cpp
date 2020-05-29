@@ -1,21 +1,5 @@
 #include "Server.hpp"
 
-using namespace std;
-using namespace sf;
-#include <sstream>
-#include <queue>
-
-int main() 
-{
-  Server *myServer = Server::Instance();
-  srand(time(NULL));
-  while (!myServer->isWasStoped()) 
-    myServer->Work();
-
-  myServer->Stop();
-  return 0;
-}
-
 Server* Server::_instance = 0;
 Server* Server::Instance()
 {
@@ -33,7 +17,8 @@ bool Server::isWasStoped()
 
 Server::Server()
 {
-  _listener.listen(1190);
+  if(_listener.listen(7777) != Socket::Done)
+    throw MyException("Error 7: port 7777 is not available!!");
   _selector.add(_listener);
   _protoId = 1;
   _stop = false;
@@ -79,11 +64,8 @@ void Server::ConnectUser()
   conUser = Registration(); 
 
   SafeConnect(conUser, socket);
-  cout << "Connect new User";
   if(_listener.accept(*socket) != Socket::Done)
-  { 
-    cout << "Fuck";
-  }
+    throw MyException("Error 8: new user connection failure!!");
   _selector.add(*socket);
 }
 
@@ -98,113 +80,13 @@ void Server::Proccessing()
       {
         string tmp;
         MessageType typePack;
-        if(packet >> typePack)
-          ;//todo
+        if(!(packet >> typePack))
+          throw MyException("Error 10: failed to read type of packet from receive packet");
 
         switch(typePack)
         {
-          case MessageType::Connect://todo
-            if (packet >> tmp)
-            {
-              cout << tmp << endl; 
-            } 
-            break;
           case MessageType::Config:
-            {
-              bool sizeFound = false;
-              bool selectedAI = false;
-              for(int i = 0; i < 4; i++)
-                if(packet >> tmp)
-                  if(tmp == "Y" && !sizeFound)
-                    switch(i)
-                    {
-                      case 0:
-                        selectedAI = true;
-                      break;
-                      case 1:
-                        it->_x = 5;
-                        it->_y = 5;
-                        sizeFound = true;
-                      break;
-                      case 2:
-                        it->_x = 15;
-                        it->_y = 15;
-                        sizeFound = true;
-                      break;
-                      case 3:
-                        it->_x = 19;
-                        it->_y = 19;
-                        sizeFound = true;
-                      break;
-                    }
-              string x, y;
-              packet >> x >> y;
-              if(!sizeFound)
-              {
-                istringstream ss(x + " " + y);
-                Uint32 a, b;
-                ss >> a >> b;
-                it->_x = a;
-                it->_y = b;
-              }
-              
-              Packet confirm;
-              confirm << it->_x << it->_y;
-              it->_grid = new Int32*[it->_x];
-              for(int i = 0; i<it->_x;i++)
-              {
-                it->_grid[i] = new Int32[it->_y];
-                for(int j = 0; j<it->_y; j++)
-                  it->_grid[i][j] = 0;
-              }
-              it->_tictac = rand()%2;
-              if(selectedAI)
-              {
-                it->_state = UserState::PlayOn;
-                it->_opponentID = 0;
-
-                confirm << it->_tictac;
-                it->_socket->send(confirm);
-                it->_AIgrid = new Int32*[it->_x];
-                for(int i = 0; i<it->_x;i++)
-                {
-                  it->_AIgrid[i] = new Int32[it->_y];
-                }
-                SetAIgrid(it->_AIgrid, it->_x, it->_y);
-                if(it->_tictac)
-                {
-                  Packet pack;
-                  pack << MatchState::GO;
-                  ostringstream ss2;
-                  ss2 << " " << it->_x/2<< " " << it->_y/2<< " " << "-1";
-                  pack << ss2.str();
-                  it->_grid[it->_x/2][it->_y/2] = 2;
-                  it->_AIgrid[it->_x/2][it->_y/2] = 0;
-                  it->_socket->send(pack);
-                }
-              }
-              else 
-              {
-                it->_state = UserState::Online;
-                for(auto other : _users)
-                  if(other != it)
-                    if(other->_state == UserState::Online)
-                      if(other->_x == it->_x && other->_y == it->_y)
-                      {
-                        it->_state = UserState::PlayOn;
-                        other->_state = UserState::PlayOn;
-                        it->_opponentID = other->_id;
-                        other->_opponentID = it->_id;
-                        it->_tictac = !other->_tictac;
-                        Packet confirmOther(confirm);
-                        confirm << it->_tictac;
-                        confirmOther << other->_tictac;
-                        it->_socket->send(confirm);
-                        other->_socket->send(confirmOther);
-                        break;
-                      }
-              }
-            }
+            Matchmaking(packet, it);
             break;
           case MessageType::Move:
             {
@@ -215,12 +97,15 @@ void Server::Proccessing()
                   {
                     string tmp;
                     packet >> tmp;
+
                     Packet sendPack;
                     istringstream ss(tmp);
                     Uint32 x,y;
+
                     ss >> x >> y;
                     it->_grid[x][y] = it->_tictac?1:2;
                     other->_grid[x][y] = it->_tictac?1:2;
+
                     Int32 dir;
                     MatchState ms = GetStateMatch(it->_grid,{it->_x,it->_y}, {x,y}, dir);
                     sendPack << ms;
@@ -229,13 +114,11 @@ void Server::Proccessing()
 
                     ss2 << " " << x << " " << y << " ";
                     if(ms == MatchState::WinO || ms == MatchState::WinX)
-                    {
                       ss2 << dir;
-                    }
                     else 
                       ss2 << "-1";
+
                     tmp = ss2.str();
-                    cout << tmp;
 
                     sendPack << tmp;
 
@@ -279,7 +162,6 @@ void Server::Proccessing()
                   else 
                     ss2 << "-1";
                   tmp = ss2.str();
-                  cout << tmp;
 
                   sendPack << tmp;
                   if(ms == MatchState::WinO || ms == MatchState::WinX || ms == MatchState::Tie)
@@ -298,12 +180,9 @@ void Server::Proccessing()
 
                   ostringstream ss2;
 
-                  ss2 << " " << x << " " << y << " ";
+                  ss2 << " " << x << " " << y << " "<< dir;
 
-                  ss2 << dir;
-                  
                   tmp = ss2.str();
-                  cout << tmp;
 
                   sendPack << tmp;
                   it->_socket->send(sendPack);
@@ -314,8 +193,6 @@ void Server::Proccessing()
               }
               
             }
-            break;
-          case MessageType::Disconnect://todo
             break;
         }
       }
@@ -409,7 +286,7 @@ Vector2i Server::GenerateAImove(Int32 **AI, Int32 **grid, Vector2i size, Int32 &
       if(AI[i][j] != 0)
       {
         CalcValueCell(grid,size,{i,j}, 1, cnt1);
-        CalcValueCell(grid,size,{i,j}, 1, cnt2);
+        CalcValueCell(grid,size,{i,j}, 2, cnt2);
         if(maxPotential < AI[i][j] + GetAIValue(cnt1) + GetUserValue(cnt2))
         {
           maxPotential = AI[i][j] + GetAIValue(cnt1) + GetUserValue(cnt2);
@@ -481,4 +358,121 @@ Int32 Server::GetAIValue(Int32 *cnt)
     }
   }
   return place;
+}
+
+void Server::Matchmaking(Packet &packet, User*it)
+{
+  string value;
+  bool sizeFound = false;
+  bool selectedAI = false;
+
+  for(int i = 0; i < 4; i++)
+    if(packet >> value)
+    {
+      if(value == "Y" && !sizeFound)
+        switch(i)
+        {
+          case 0:
+            selectedAI = true;
+          break;
+          case 1:
+            it->_x = 5;
+            it->_y = 5;
+            sizeFound = true;
+          break;
+          case 2:
+            it->_x = 15;
+            it->_y = 15;
+            sizeFound = true;
+          break;
+          case 3:
+            it->_x = 19;
+            it->_y = 19;
+            sizeFound = true;
+          break;
+        }
+    }
+  string x, y;
+  if(!(packet >> x >> y))
+    throw MyException("Error 11: failed to read config from receive packet");
+    
+  if(!sizeFound)
+  {
+    istringstream ss(x + " " + y);
+    Uint32 a, b;
+    ss >> a >> b;
+    it->_x = a;
+    it->_y = b;
+  }
+
+  Packet confirm;
+  confirm << it->_x << it->_y;
+
+  it->_grid = new Int32*[it->_x];
+  for(int i = 0; i<it->_x;i++)
+  {
+    it->_grid[i] = new Int32[it->_y];
+    for(int j = 0; j<it->_y; j++)
+      it->_grid[i][j] = 0;
+  }
+
+  it->_tictac = rand()%2;
+
+  if(selectedAI)
+  {
+
+    it->_state = UserState::PlayOn;
+    it->_opponentID = 0;
+
+    confirm << it->_tictac;
+    if(it->_socket->send(confirm)!=Socket::Done)
+      throw MyException("Error 12: failed send confirm");
+
+    it->_AIgrid = new Int32*[it->_x];
+    for(int i = 0; i<it->_x;i++)
+      it->_AIgrid[i] = new Int32[it->_y];
+    
+    SetAIgrid(it->_AIgrid, it->_x, it->_y);
+
+    if(it->_tictac)
+    {
+      Packet pack;
+      pack << MatchState::GO;
+      ostringstream ss2;
+      ss2 << " " << it->_x/2<< " " << it->_y/2<< " " << "-1";
+      pack << ss2.str();
+      it->_grid[it->_x/2][it->_y/2] = 2;
+      it->_AIgrid[it->_x/2][it->_y/2] = 0;
+
+      if(it->_socket->send(pack)!=Socket::Done)
+        throw MyException("Error 13: failed send AI move");
+    }
+  }
+  else 
+  {
+    it->_state = UserState::Online;
+
+    for(auto other : _users)
+      if(other != it && other->_state == UserState::Online && other->_x == it->_x && other->_y == it->_y)
+      {
+        it->_state = UserState::PlayOn;
+        other->_state = UserState::PlayOn;
+
+        it->_opponentID = other->_id;
+        other->_opponentID = it->_id;
+
+        it->_tictac = !other->_tictac;
+
+        Packet confirmOther(confirm);
+
+        confirm << it->_tictac;
+        confirmOther << other->_tictac;
+
+        if(it->_socket->send(confirm) != Socket::Done)
+          throw MyException("Error 13: init data don't send player!!!");
+        if(other->_socket->send(confirmOther) != Socket::Done)
+          throw MyException("Error 13: init data don't send player!!!");
+        break;
+      }
+  }
 }

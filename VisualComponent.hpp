@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <sstream>
+#include "Key.hpp"
 
 using namespace std;
 using namespace sf;

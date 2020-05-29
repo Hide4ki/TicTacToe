@@ -1,5 +1,4 @@
 #include "Field.hpp"
-#include <sstream>
 
 Field::Field(Vector2f st, Int32 w, Int32 h, Texture &f, Texture &x, Texture &o, Texture &xw, Texture &ow, bool side):VisualComponent(st,{0,0})
 {

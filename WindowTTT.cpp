@@ -15,18 +15,7 @@ void WindowTTT::WindowHandler()
   bool gameEnd = false;
   Event e;
   while(_window.pollEvent(e));
-  _window.clear();
-  for(auto it : _itextb)
-    it->DrawTo(_window);
-  for(auto it : _otextb)
-    it->DrawTo(_window);
-  for(auto it : _chb)
-    it->DrawTo(_window);
-  if(_button != 0)
-    _button->DrawTo(_window);
-  if(_field != 0)
-    _field->DrawTo(_window);
-  _window.display();
+    Draw();
 
   if (_field != 0)
   {
@@ -52,6 +41,9 @@ void WindowTTT::WindowHandler()
         packet >> ms;
         packet >> s;
       }
+      else
+        throw MyException("Error 15: Package Receive Failed");
+      
       switch(ms)
       {
         case MatchState::GO:
@@ -72,6 +64,7 @@ void WindowTTT::WindowHandler()
       }
       lock = false;
     }
+
     while(_window.pollEvent(e))
     {
       switch(e.type)
@@ -104,12 +97,7 @@ void WindowTTT::WindowHandler()
                   istringstream ss(_itextb[1]->GetValue());
                   ss >> port;
                   if(_socket->connect(_itextb[0]->GetValue(), port) != Socket::Done)
-                  {
-                    
-                  }
-                  Packet packet;
-                  if(packet << _message << "Hello server!!")
-                    _socket->send(packet);
+                    throw MyException("Error 20: Connection failed!!");
                 }
                 break;
                 case WinType::Config:
@@ -121,12 +109,14 @@ void WindowTTT::WindowHandler()
                   string c2 = _chb[2]->GetValue();
                   string c3 = _chb[3]->GetValue();
                   Packet packet;
-                  if(packet << _message << c0 << c1 << c2 << c3 << x << y)
-                  {
-                    int tmp = packet.getDataSize();
-                    _socket->send(packet);
-                  }
+                  packet << _message << c0 << c1 << c2 << c3 << x << y;
+                  int tmp = packet.getDataSize();
+                  if(_socket->send(packet) != Socket::Done)
+                    throw MyException("Error 22: Configuration send failed!!");
                 }
+                break;
+                case WinType::Error:
+                  _window.close();
                 break;
               }
               _window.close();
@@ -151,18 +141,7 @@ void WindowTTT::WindowHandler()
         break;
       }
     }
-    _window.clear();
-    for(auto it : _itextb)
-      it->DrawTo(_window);
-    for(auto it : _otextb)
-      it->DrawTo(_window);
-    for(auto it : _chb)
-      it->DrawTo(_window);
-    if(_button != 0)
-      _button->DrawTo(_window);
-    if(_field != 0)
-      _field->DrawTo(_window);
-    _window.display();
+    Draw();
   }
 }
 
@@ -178,4 +157,20 @@ WindowTTT::~WindowTTT()
     delete _button;
   if(_field != 0)
     delete _field;
+}
+
+void WindowTTT::Draw()
+{
+  _window.clear();
+  for(auto it : _itextb)
+    it->DrawTo(_window);
+  for(auto it : _otextb)
+    it->DrawTo(_window);
+  for(auto it : _chb)
+    it->DrawTo(_window);
+  if(_button != 0)
+    _button->DrawTo(_window);
+  if(_field != 0)
+    _field->DrawTo(_window);
+  _window.display();
 }

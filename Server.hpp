@@ -2,9 +2,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
+#include <queue>
 #include <SFML/Network.hpp>
 #include <SFML/Graphics.hpp>
-#include "Exception.hpp"
+#include "MyException.hpp"
 #include "User.hpp"
 #include "MessageType.hpp"
 #include "ExPacket.hpp"
@@ -39,6 +41,7 @@ private:
   void CalcValueCell(Int32 **, Vector2i, Vector2i, Int32, Int32 *);
   Int32 GetUserValue(Int32*);
   Int32 GetAIValue(Int32*);
+  void Matchmaking(Packet &, User*);
   static Server* _instance;  
   TcpListener _listener;
   SocketSelector _selector;

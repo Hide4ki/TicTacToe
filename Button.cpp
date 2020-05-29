@@ -1,5 +1,4 @@
 #include "Button.hpp"
-#include <iostream>
 
 Button::Button(Vector2f st, Vector2f fn, Color c):VisualComponent(st, fn)
 {
@@ -15,7 +14,6 @@ void Button::DrawTo(RenderWindow &w)
 
 void Button::OnClick()
 {
-  std::cout << "hell" << std::endl;
 }
 
 void Button::ReSize(Vector2f s)
