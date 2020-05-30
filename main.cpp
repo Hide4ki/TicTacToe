@@ -69,6 +69,9 @@ int main()
       throw MyException("Error 5: connection failure");
     
 
+    if(a > 25 || a < 5 || b < 5 || b > 25)
+      throw MyException("Error 99: Size field out of limit(5-25)");
+
     w3 = new WindowTTT((new WindowTTTBuilder())->\
     SetWinName("Play")->SetStyle(Style::Close)->\
     AddField(new BorderDecor(new Field({30,30},a,b,free,X,O,Xw,Ow,f), 3, Color::Red))->\

@@ -395,7 +395,7 @@ void Server::Matchmaking(Packet &packet, User*it)
   string x, y;
   if(!(packet >> x >> y))
     throw MyException("Error 11: failed to read config from receive packet");
-    
+  
   if(!sizeFound)
   {
     istringstream ss(x + " " + y);

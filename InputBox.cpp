@@ -54,7 +54,7 @@ void InputBox::Enter(Uint32 ch)
   else if(ch == static_cast<Uint32>(Key::ENTER_KEY))
   {
   }
-  else if(((_limit < 0 || _limit > _cout.length())) && ch>=' ')
+  else if(((_limit < 0 || _limit > _cout.length())) && (ch=='.' || (ch >= '0' && ch <= '9')))
     _cout += ch;
   SetValue(_limit != _cout.length()?_cout + "_":_cout);
 }
