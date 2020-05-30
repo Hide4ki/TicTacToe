@@ -260,7 +260,7 @@ void Server::SetAIgrid(Int32 **grid, Int32 x, Int32 y)
       Int32 y = (now + offset[i]).y;
       if(CheckBorder(border, now + offset[i]) && visit[x][y] == 0)
       {
-        grid[x][y] = 20;
+        grid[x][y] = rand()%100;
         pull.push({x,y});
         visit[x][y] = 1;
       }
@@ -319,16 +319,16 @@ Int32 Server::GetUserValue(Int32 *cnt)
     switch(cnt[i])
     {
       case 2:
-        place += 20;
+        place += 50;
       break;
       case 3:
         place += 300;
       break;
       case 4:
-        place += 2000;
+        place += 10000;
       break;
       case 5:
-        place += 40000;
+        place += 50000;
       break;
     }
   }
@@ -344,16 +344,16 @@ Int32 Server::GetAIValue(Int32 *cnt)
     switch(cnt[i])
     {
       case 2:
-        place += 50;
+        place += 110;
       break;
       case 3:
         place += 500;
       break;
       case 4:
-        place += 1500;
+        place += 5000;
       break;
       case 5:
-        place += 50000;
+        place += 100000;
       break;
     }
   }
