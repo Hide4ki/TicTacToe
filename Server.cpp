@@ -260,7 +260,7 @@ void Server::SetAIgrid(Int32 **grid, Int32 x, Int32 y)
       Int32 y = (now + offset[i]).y;
       if(CheckBorder(border, now + offset[i]) && visit[x][y] == 0)
       {
-        grid[x][y] = rand()%100;
+        grid[x][y] = rand()%100 + 1;
         pull.push({x,y});
         visit[x][y] = 1;
       }
